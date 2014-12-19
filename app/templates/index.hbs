@@ -1,0 +1,45 @@
+{{line-chart columns=columns targetAmount=goalAmount}}
+
+<div class="field">
+  <div class="label">How much will you charge per month?</div>
+  {{input type='range' min='0' max='100' step='5' value=growthPercent}}
+</div>
+
+Growth Rate:
+{{growthPercent}}% per month
+
+<br>
+
+Minimum Growth:
+{{input type='range' min='0' max='20' step='1' value=growthMin}}
+{{growthMin}} customers per month
+
+<br>
+
+Maximum Customer Base:
+{{input type='range' min='20' max='1000' step='20' value=growthCap}}
+{{growthCap}} total customers
+
+<br>
+
+Churn Rate:
+{{input type='range' min='0' max='50' step='1' value=churnPercent}}
+{{churnPercent}}% of customers per month
+
+<br>
+
+Minimum Churn:
+{{input type='range' min='0' max='20' step='1' value=churnMin}}
+{{churnMin}} customers per month
+
+<br>
+
+Unit Price:
+{{input type='range' min='0' max='200' step='10' value=unitPrice}}
+${{unitPrice}} per month
+
+<br>
+
+Time Range:
+{{input type='range' min='0' max='48' step='3' value=numberOfMonths}}
+{{numberOfMonths}} months
