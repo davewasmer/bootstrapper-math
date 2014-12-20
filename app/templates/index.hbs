@@ -1,45 +1,157 @@
-{{line-chart columns=columns targetAmount=goalAmount}}
+{{line-chart series=series targetAmount=annualRevenueGoal}}
 
-<div class="field">
-  <div class="label">How much will you charge per month?</div>
-  {{input type='range' min='0' max='100' step='5' value=growthPercent}}
-</div>
+<section class="goal">
+  <h2>Your Goal</h2>
+  I want to replace my 
+  {{#slider-input value=salaryEquivalent scale='1000' min='0' drag='20'}}
+    {{as-currency salaryEquivalent round=true}}
+  {{/slider-input}}
+  salary (
+  {{#slider-input value=monthlyIncome scale='100' min='0' drag='20'}}
+    {{as-currency monthlyIncome round=true}}
+  {{/slider-input}}
+  per month) in the next
+  {{#slider-input value=timespan scale='1' min='1' drag='30'}}
+    {{timespan}}
+  {{/slider-input}}
+  months.
+</section>
 
-Growth Rate:
-{{growthPercent}}% per month
+<h2>Target</h2>
+<p>
+  To do this, you will need to bring in approximately 
+  {{as-currency annualRevenueGoal round=true}} annually, 
+  or {{as-currency monthlyRevenueGoal round=true}}
+  in revenue per month.
+</p>
+{{#unless showingAssumptions}}
+  <div class="show-assumptions" {{action 'toggleAssumptions'}}>Show assumptions &hellip;</div>
+{{/unless}}
 
-<br>
+{{#if showingAssumptions}}
+  <section class="assumptions">
+    <div class="hide-assumptions" {{action 'toggleAssumptions'}}>hide assumptions &hellip;</div>
+    <h2>Assumptions</h2>
 
-Minimum Growth:
-{{input type='range' min='0' max='20' step='1' value=growthMin}}
-{{growthMin}} customers per month
+    <div class="field">
+      Each month,
+      {{#slider-input value=churnRate scale='.01' min='0' max='1'}}
+        {{as-percent churnRate}}
+      {{/slider-input}}
+      of your customers will cancel (churn).
+    </div>
+    <div class="field">
+      Your credit card processor charges
+      {{#slider-input value=processingPercent scale='.01' min='0' max='1'}}
+        {{as-percent processingPercent round=false}}
+      {{/slider-input}}
+      +
+      {{#slider-input value=processingFixedFee scale='.01' min='0'}}
+        {{as-currency processingFixedFee}}
+      {{/slider-input}}
+      per transaction
+    </div>
+    <div class="field">
+      You'll pay
+      {{#slider-input value=incomeTaxPercent scale='.01' min='0' max='1'}}
+        {{as-percent incomeTaxPercent}}
+      {{/slider-input}}
+      in standard personal income tax.
+    </div>
+    <div class="field">
+      You'll pay an additional
+      {{#slider-input value=businessTaxPercent scale='.01' min='0' max='1'}}
+        {{as-percent businessTaxPercent}}
+      {{/slider-input}}
+      in business / self employment taxes on your bootstrapped income (i.e. Schedule C).
+    </div>
+  </section>
+{{/if}}
 
-<br>
+<h2>Result</h2>
+{{#if isShortOfGoal}}
+  <p>
+    You are {{as-currency delta}} short of your goal, based on this model.
+  </p>
+  <p>
+    You've got a couple options:
+  </p>
+  <ul>
+    <li>You could increase your price to {{as-currency priceToHitGoal round=true}}</li>
+    {{#if growthIsPercent}}
+      <li>You could increase your growth rate to {{as-percent growthRateToHitGoal round=true}}</li>
+      <li>You could increase the number of customers you start out with to {{growthSeedToHitGoal}}</li>
+    {{else}}
+      <li>You could increase the number of customers you sign up each month to {{growthAmountToHitGoal}}</li>
+    {{/if}}
+    {{#if churnRateToHitGoalIsPositive}}
+      <li>You could reduce your churn rate to {{as-percent churnRateToHitGoal}}</li>
+    {{/if}}
+    <li></li>
+  </ul>
+{{else}}
+  <p>
+    Awesome! Looks like you are on track to hit your goals!
+  </p>
+  {{#if isOverGoal}}
+    <p>
+      In fact, if you hit these numbers, you'll make {{as-currency delta}} more than your goal!
+    </p>
+  {{/if}}
+{{/if}}
 
-Maximum Customer Base:
-{{input type='range' min='20' max='1000' step='20' value=growthCap}}
-{{growthCap}} total customers
+<section class="pricing">
+  <h2>Pricing</h2>
+  <div class="field">
+    <div class="label">How much will you charge per month?</div>
+    {{#slider-input value=unitPrice scale='5' min='0'}}
+      {{as-currency unitPrice round=true}}
+    {{/slider-input}}
+  </div>
+</section>
 
-<br>
-
-Churn Rate:
-{{input type='range' min='0' max='50' step='1' value=churnPercent}}
-{{churnPercent}}% of customers per month
-
-<br>
-
-Minimum Churn:
-{{input type='range' min='0' max='20' step='1' value=churnMin}}
-{{churnMin}} customers per month
-
-<br>
-
-Unit Price:
-{{input type='range' min='0' max='200' step='10' value=unitPrice}}
-${{unitPrice}} per month
-
-<br>
-
-Time Range:
-{{input type='range' min='0' max='48' step='3' value=numberOfMonths}}
-{{numberOfMonths}} months
+<section class="growth">
+  <h2>Growth</h2>
+  <div class="field">
+    <div class="label">How much will your customer base grow each month?</div>
+    {{#if growthIsPercent}}
+      {{#slider-input value=growthRate scale='.01' max='1' min='0'}}
+        {{as-percent growthRate}}
+      {{/slider-input}}
+      each month
+    {{else}}
+      {{#slider-input value=growthAmount scale='1' min='0'}}
+        {{growthAmount}}
+      {{/slider-input}}
+      customers each month
+    {{/if}}
+    ( <span {{bind-attr class=":growth-type-toggle growthIsPercent:active"}} {{action 'setGrowthAsPercent'}}>percentage</span>
+    | <span {{bind-attr class=":growth-type-toggle growthIsPercent::active"}} {{action 'setGrowthAsAbsolute'}}>absolute</span> )
+  </div>
+  {{#if growthIsPercent}}
+  <div class="field">
+    <div class="label">The minimum number of customers added per month (regardless of percent growth)?</div>
+    {{#slider-input value=growthMin scale='1' min='0'}}
+      {{growthMin}}
+    {{/slider-input}}
+  </div>
+  {{/if}}
+  <div class="field">
+    <div class="label">How many customers will you launch with?</div>
+    {{#slider-input value=growthSeed scale='1' min='0'}}
+      {{growthSeed}}
+    {{/slider-input}}
+  </div>
+  <div class="field">
+    <div class="label">Is there a limit to the number of customers you can / want to support?</div>
+    {{input type='checkbox' checked=isGrowthCapped}}
+  </div>
+  {{#if isGrowthCapped}}
+    <div class="field">
+      <div class="label">What is that limit?</div>
+      {{#slider-input value=growthCap scale='1' min='0'}}
+        {{growthCap}}
+      {{/slider-input}}
+    </div>
+  {{/if}}
+</section>

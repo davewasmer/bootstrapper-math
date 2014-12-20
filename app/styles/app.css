@@ -26,3 +26,16 @@ html, body {
   width: 100%;
   height: 300px;
 }
+
+.slider-input, .slider-input-dragging {
+  cursor: ew-resize;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none
+}
+
+.slider-input {
+  display: inline-block;
+  border-bottom: 2px dotted #5c5c5c;
+}
