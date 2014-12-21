@@ -1,14 +1,14 @@
-{{line-chart series=series targetAmount=annualRevenueGoal}}
+{{line-chart series=series targetAmount=annualProfitGoal}}
 
 <section class="goal">
   <h2>Your Goal</h2>
   I want to replace my 
-  {{#slider-input value=salaryEquivalent scale='1000' min='0' drag='20'}}
-    {{as-currency salaryEquivalent round=true}}
+  {{#slider-input value=salary scale='1000' min='0' drag='20'}}
+    {{as-currency salary round=true}}
   {{/slider-input}}
   salary (
-  {{#slider-input value=monthlyIncome scale='100' min='0' drag='20'}}
-    {{as-currency monthlyIncome round=true}}
+  {{#slider-input value=monthlyRevenue scale='100' min='0' drag='20'}}
+    {{as-currency monthlyRevenue round=true}}
   {{/slider-input}}
   per month) in the next
   {{#slider-input value=timespan scale='1' min='1' drag='30'}}
@@ -20,9 +20,8 @@
 <h2>Target</h2>
 <p>
   To do this, you will need to bring in approximately 
-  {{as-currency annualRevenueGoal round=true}} annually, 
-  or {{as-currency monthlyRevenueGoal round=true}}
-  in revenue per month.
+  {{as-currency annualProfitGoal round='2'}} in profit annually, 
+  or {{as-currency monthlyProfitGoal round='2'}} per month.
 </p>
 {{#unless showingAssumptions}}
   <div class="show-assumptions" {{action 'toggleAssumptions'}}>Show assumptions &hellip;</div>
@@ -69,42 +68,46 @@
 {{/if}}
 
 <h2>Result</h2>
+
+<p>
+
+Based on these numbers, you'll bring in approximately {{as-currency totalProfit
+round='2'}} over the next {{timespan}} months,
+
+{{#if isShortOfGoal}}
+    leaving you roughly {{as-currency displayDelta round='2'}} short of your goal.
+{{else}}
+    putting you roughly {{as-currency displayDelta round='2'}} over than your goal.
+{{/if}}
+</p>
+
 {{#if isShortOfGoal}}
   <p>
-    You are {{as-currency delta}} short of your goal, based on this model.
-  </p>
-  <p>
-    You've got a couple options:
+    You've got a few options:
   </p>
   <ul>
-    <li>You could increase your price to {{as-currency priceToHitGoal round=true}}</li>
+    <li>You could increase your price by {{as-currency priceDeltaToHitGoal round=true}} to {{as-currency priceToHitGoal round=true}}</li>
     {{#if growthIsPercent}}
-      <li>You could increase your growth rate to {{as-percent growthRateToHitGoal round=true}}</li>
-      <li>You could increase the number of customers you start out with to {{growthSeedToHitGoal}}</li>
+      <li>You could increase your growth rate by {{as-percent growthRateDeltaToHitGoal round=true}} to {{as-percent growthRateToHitGoal round=true}}</li>
+      <li>You could increase the number of customers you start out with by {{as-integer growthSeedDeltaToHitGoal}} to {{as-integer growthSeedToHitGoal}}</li>
     {{else}}
-      <li>You could increase the number of customers you sign up each month to {{growthAmountToHitGoal}}</li>
+      <li>You could increase the number of customers you sign up each month to {{as-integer growthAmountToHitGoal}}</li>
     {{/if}}
     {{#if churnRateToHitGoalIsPositive}}
       <li>You could reduce your churn rate to {{as-percent churnRateToHitGoal}}</li>
     {{/if}}
-    <li></li>
   </ul>
 {{else}}
   <p>
     Awesome! Looks like you are on track to hit your goals!
   </p>
-  {{#if isOverGoal}}
-    <p>
-      In fact, if you hit these numbers, you'll make {{as-currency delta}} more than your goal!
-    </p>
-  {{/if}}
 {{/if}}
 
 <section class="pricing">
   <h2>Pricing</h2>
   <div class="field">
     <div class="label">How much will you charge per month?</div>
-    {{#slider-input value=unitPrice scale='5' min='0'}}
+    {{#slider-input value=unitPrice scale='5' min='0' drag='30'}}
       {{as-currency unitPrice round=true}}
     {{/slider-input}}
   </div>
@@ -115,12 +118,12 @@
   <div class="field">
     <div class="label">How much will your customer base grow each month?</div>
     {{#if growthIsPercent}}
-      {{#slider-input value=growthRate scale='.01' max='1' min='0'}}
+      {{#slider-input value=growthRate scale='.01' max='1' min='0' drag='10'}}
         {{as-percent growthRate}}
       {{/slider-input}}
       each month
     {{else}}
-      {{#slider-input value=growthAmount scale='1' min='0'}}
+      {{#slider-input value=growthAmount scale='1' min='0' drag='10'}}
         {{growthAmount}}
       {{/slider-input}}
       customers each month

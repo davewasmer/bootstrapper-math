@@ -3,33 +3,26 @@ import Ember from 'ember';
 export default Ember.Controller.extend({
 
   // 
-  // Graph controls
-  // 
-
-  showCustomers: true,
-  showMonthlyRevenue: true,
-  showCumulativeRevenue: true,
-
-  // 
   // Goals
   // 
 
-  salaryEquivalent: 60000,
+  salary: 60000,
   timespan: 12,
-  monthlyIncome: function(key, value) {
+  monthlyRevenue: function(key, value) {
     if (arguments.length > 1) {
-      this.set('salaryEquivalent', value * 12);
+      this.set('salary', value * 12);
     }
-    return this.get('salaryEquivalent') / 12;
-  }.property('salaryEquivalent'),
-  annualRevenueGoal: function() {
-    var withTaxes = this.get('salaryEquivalent') * (1 + this.get('businessTaxPercent'));
-    var withExpenses = withTaxes + this.get('totalCreditCardPercent') + this.get('totalCreditCardFixed');
+    return this.get('salary') / 12;
+  }.property('salary'),
+  annualProfitGoal: function() {
+    var withTaxes = this.get('salary') * (1 + this.get('businessTaxPercent'));
+    var withExpenses = withTaxes * (1 + this.get('processingPercent'));
+    withExpenses += this.get('totalCreditCardFixed');
     return withExpenses;
-  }.property('salaryEquivalent', 'businessTaxPercent', 'totalCreditCardPercent', 'totalCreditCardFixed'),
-  monthlyRevenueGoal: function() {
-    return this.get('annualRevenueGoal') / 12;
-  }.property('annualRevenueGoal'),
+  }.property('salary', 'businessTaxPercent', 'processingPercent', 'totalCreditCardFixed'),
+  monthlyProfitGoal: function() {
+    return this.get('annualProfitGoal') / 12;
+  }.property('annualProfitGoal'),
 
   // 
   // Assumptions
@@ -46,11 +39,7 @@ export default Ember.Controller.extend({
   churnMin: 1,
 
   // Taxes
-  incomeTaxPercent: .25,
   businessTaxPercent: .15,
-  combinedTaxPercent: function() {
-    return this.get('incomeTaxPercent') + this.get('businessTaxPercent');
-  }.property('incomeTaxPercent', 'businessTaxPercent'),
 
   // 
   // Income
@@ -91,7 +80,7 @@ export default Ember.Controller.extend({
       if (monthIndex === 0) {
         previousMonth = {
           customers: this.get('growthSeed'),
-          cumulativeRevenue: 0
+          cumulativeProfit: 0
         };
       } else {
         previousMonth = projectedMonths[monthIndex - 1];
@@ -103,35 +92,37 @@ export default Ember.Controller.extend({
         : this.get('growthAmount');
       var churnedCustomers  = Math.max(Math.floor(previousMonth.customers * this.get('churnRate')), this.get('churnMin'));
       var netCustomers      = previousMonth.customers + newCustomers - churnedCustomers;
-      var customers         = Math.min(netCustomers, this.get('growthCap'));
+      var customers         = this.get('isGrowthCapped') ?
+        Math.min(netCustomers, this.get('growthCap'))
+        : netCustomers;
 
       // Revenue
-      var grossRevenue      = customers * this.get('unitPrice');
+      var revenue            = customers * this.get('unitPrice');
 
       // Expenses
-      var creditCardPercent = Math.round(grossRevenue * this.get('processingPercent'));
+      var creditCardPercent = Math.round(revenue * this.get('processingPercent'));
       var creditCardFixed   = Math.round(customers * this.get('processingFixedFee'));
 
       // Income
-      var netRevenue        = grossRevenue - creditCardPercent - creditCardFixed;
-      var cumulativeRevenue = previousMonth.cumulativeRevenue + netRevenue;
+      var profit            = revenue - creditCardPercent - creditCardFixed;
+      var cumulativeProfit  = previousMonth.cumulativeProfit + profit;
 
       projectedMonths.push({
         newCustomers: newCustomers,
         churnedCustomers: churnedCustomers,
         netCustomers: netCustomers,
         customers: customers,
-        grossRevenue: grossRevenue,
+        revenue: revenue,
         creditCardPercent: creditCardPercent,
         creditCardFixed: creditCardFixed,
-        netRevenue: netRevenue,
-        cumulativeRevenue: cumulativeRevenue
+        profit: profit,
+        cumulativeProfit: cumulativeProfit
       });
     }, this);
     return projectedMonths;
   }.property(
-    'months.[]',
-    'growthSeed', 
+    'months',
+    'growthSeed',
     'growthRate',
     'growthMin',
     'churnRate',
@@ -142,50 +133,55 @@ export default Ember.Controller.extend({
     'processingFixedFee'
   ),
 
-  newCustomersByMonth:       Ember.computed.mapBy('projection', 'newCustomers'),
-  churnedCustomersByMonth:   Ember.computed.mapBy('projection', 'churnedCustomers'),
-  netCustomersByMonth:       Ember.computed.mapBy('projection', 'netCustomers'),
-  customersByMonth:          Ember.computed.mapBy('projection', 'customers'),
-  grossRevenueByMonth:       Ember.computed.mapBy('projection', 'grossRevenue'),
-  creditCardPercentByMonth:  Ember.computed.mapBy('projection', 'creditCardPercent'),
-  creditCardFixedByMonth:    Ember.computed.mapBy('projection', 'creditCardFixed'),
-  netRevenueByMonth:         Ember.computed.mapBy('projection', 'netRevenue'),
-  cumulativeRevenueByMonth:  Ember.computed.mapBy('projection', 'cumulativeRevenue'),
+  newCustomersByMonth:      function() { return this.get('projection').mapBy('newCustomers');  }.property('projection'),
+  churnedCustomersByMonth:  function() { return this.get('projection').mapBy('churnedCustomers');  }.property('projection'),
+  netCustomersByMonth:      function() { return this.get('projection').mapBy('netCustomers');  }.property('projection'),
+  customersByMonth:         function() { return this.get('projection').mapBy('customers');  }.property('projection'),
+  revenueByMonth:           function() { return this.get('projection').mapBy('revenue');  }.property('projection'),
+  creditCardPercentByMonth: function() { return this.get('projection').mapBy('creditCardPercent');  }.property('projection'),
+  creditCardFixedByMonth:   function() { return this.get('projection').mapBy('creditCardFixed');  }.property('projection'),
+  profitByMonth:            function() { return this.get('projection').mapBy('profit');  }.property('projection'),
+  cumulativeProfitByMonth:  function() { return this.get('projection').mapBy('cumulativeProfit');  }.property('projection'),
 
   totalNewCustomers:         Ember.computed.sum('newCustomersByMonth'),
   totalChurnedCustomers:     Ember.computed.sum('churnedCustomersByMonth'),
-  totalCustomers:            Ember.computed.sum('customersByMonth'),
-  totalGrossRevenue:         Ember.computed.sum('grossRevenueByMonth'),
+  totalCustomers:            Ember.computed.alias('customersByMonth.lastObject'),
+  totalCustomerMonths:       Ember.computed.sum('customersByMonth'),
+  totalRevenue:              Ember.computed.sum('revenueByMonth'),
   totalCreditCardPercent:    Ember.computed.sum('creditCardPercentByMonth'),
   totalCreditCardFixed:      Ember.computed.sum('creditCardFixedByMonth'),
-  totalNetRevenue:           Ember.computed.sum('netRevenueByMonth'),
-  totalCumulativeRevenue:    Ember.computed.sum('cumulativeRevenueByMonth'),
+  totalProfit:               Ember.computed.sum('profitByMonth'),
+
+
+  // 
+  // Charting
+  // 
 
   visibleSeries: {
     newCustomers:            false,
     churnedCustomers:        false,
     customers:               false,
-    grossRevenue:            false,
-    netRevenue:              true,
-    cumulativeRevenue:       true
+    revenue:                 false,
+    profit:                  true,
+    cumulativeProfit:        true
   },
 
   seriesNames: [
     'newCustomers',
     'churnedCustomers',
     'customers',
-    'grossRevenue',
-    'netRevenue',
-    'cumulativeRevenue'
+    'revenue',
+    'profit',
+    'cumulativeProfit'
   ],
 
   seriesUnits: {
-    newCustomers:            'each',
-    churnedCustomers:        'each',
-    customers:               'each',
-    grossRevenue:            'currency',
-    netRevenue:              'currency',
-    cumulativeRevenue:       'currency'
+    newCustomers:         'each',
+    churnedCustomers:     'each',
+    customers:            'each',
+    revenue:              'currency',
+    profit:               'currency',
+    cumulativeProfit:     'currency'
   },
 
   series: function() {
@@ -204,9 +200,9 @@ export default Ember.Controller.extend({
     'newCustomersByMonth',
     'churnedCustomersByMonth',
     'customersByMonth',
-    'grossRevenueByMonth',
-    'netRevenueByMonth',
-    'cumulativeRevenueByMonth'
+    'revenueByMonth',
+    'profitByMonth',
+    'cumulativeProfitByMonth'
   ),
 
 
@@ -214,26 +210,13 @@ export default Ember.Controller.extend({
   // Annual figures
   // 
 
-  incomeTaxes: function() {
-    return this.get('totalCumulativeRevenue') * this.get('');
-  }.property('totalCumulativeRevenue', ''),
-
-  selfEmploymentTaxes: function() {
-    return this.get('totalCumulativeRevenue') * this.get('businessTaxPercent');
-  }.property('totalCumulativeRevenue', 'businessTaxPercent'),
-
-  netTaxes: function() {
-    return this.get('totalCumulativeRevenue') + this.get('combinedTaxPercent')
-  }.property('totalCumulativeRevenue', 'combinedTaxPercent'),
+  businessTaxes: function() {
+    return this.get('totalProfit') * this.get('businessTaxPercent');
+  }.property('totalProfit', 'businessTaxPercent'),
 
   salaryEquivalentIncome: function() {
-    return this.get('totalCumulativeRevenue') - this.get('selfEmploymentTaxes');
-  }.property('totalCumulativeRevenue', 'selfEmploymentTaxes'),
-
-  afterTaxIncome: function() {
-    return this.get('totalCumulativeRevenue') - this.get('netTaxes');
-  }.property('totalCumulativeRevenue', 'netTaxes'),
-
+    return this.get('totalProfit') - this.get('businessTaxes');
+  }.property('totalProfit', 'businessTaxes'),
 
   // 
   // Results and Deltas
@@ -241,50 +224,63 @@ export default Ember.Controller.extend({
 
   // How far from our goal are we?
   delta: function() {
-    return this.get('annualRevenueGoal') - this.get('salaryEquivalentIncome');
-  }.property('annualRevenueGoal', 'salaryEquivalentIncome'),
+    return this.get('totalProfit') - this.get('annualProfitGoal');
+  }.property('annualProfitGoal', 'totalRevenue'),
   isShortOfGoal: Ember.computed.lt('delta', 0),
   isOverGoal: Ember.computed.gt('delta', 0),
+  displayDelta: function() {
+    return Math.abs(this.get('delta'));
+  }.property('delta'),
 
-  // The revenue delta including taxes and CC variable fees
+  // The revenue delta including CC variable fees
   deltaWithVariableAssumptions: function() {
-    var delta = this.get('delta') * (1 + this.get('businessTaxPercent')); // Factor in taxes
-    delta = delta / (1 - this.get('processingPercent')); // Factor in variable CC processing fees
-    return delta;
+    return this.get('delta') / (1 - this.get('processingPercent')); // Factor in variable CC processing fees
   }.property('delta', 'businessTaxPercent', 'processingPercent'),
 
   // Holding everything else constant, what's the change in price needed to hit the goal
   priceDeltaToHitGoal: function() {
-    this.get('deltaWithVariableAssumptions') / this.get('totalCustomers');
-  }.property('deltaWithVariableAssumptions', 'totalCustomers'),
+    return Math.ceil(Math.abs(this.get('deltaWithVariableAssumptions')) / this.get('totalCustomerMonths'));
+  }.property('deltaWithVariableAssumptions', 'totalCustomerMonths'),
   priceToHitGoal: function() {
-    return this.get('unitPrice') + this.get('priceDeltaNeeded');
-  }.property('unitPrice', 'priceDeltaNeeded'),
+    return this.get('unitPrice') + this.get('priceDeltaToHitGoal');
+  }.property('unitPrice', 'priceDeltaToHitGoal'),
 
-  // Holding everything else constant, how many new customers over the entire timespan would we need.
-  growthNeededToHitGoal: function() {
-    return this.get('deltaWithVariableAssumptions') / (this.get('unitPrice') - this.get('processingFixedFee'));
+  // Holding everything else constant, how many new customer months would we need to make up the difference.
+  deltaCustomerMonthsNeededToHitGoal: function() {
+    return Math.abs(this.get('deltaWithVariableAssumptions') / (this.get('unitPrice') - this.get('processingFixedFee')));
   }.property('deltaWithVariableAssumptions', 'unitPrice', 'processingFixedFee'),
+  totalCustomerMonthsNeededToHitGoal: function() {
+    return this.get('deltaCustomerMonthsNeededToHitGoal') + this.get('totalCustomerMonths');
+  }.property('deltaCustomerMonthsNeededToHitGoal', 'totalCustomerMonths'),
 
   // Holding everything else constant, what's the change in percent growth rate needed to hit the goal
-  growthDeltaRateToHitGoal: function() {
-    this.get('growthRate') - this.get('growthRateToHitGoal')
+  growthRateDeltaToHitGoal: function() {
+    return this.get('growthRateToHitGoal') - this.get('growthRate');
   }.property('growthRate', 'growthRateToHitGoal'),
-  growthRateToHitGoal: function() {
-    var totalNewCustomersNeeded = this.get('deltaWithVariableAssumptions') / (this.get('unitPrice') - this.get('processingFixedFee'));
-    var totalCustomersNeeded = totalNewCustomersNeeded + this.get('totalCustomers');
-    return 1 - Math.pow(totalCustomersNeeded / this.get('growthSeed'), 1 / this.get('timespan'));
-  }.property('deltaWithVariableAssumptions', 'unitPrice', 'totalCustomers', 'growthSeed', 'timespan', 'processingFixedFee'),
 
+
+  growthRateToHitGoal: function() {
+    var totalCustomersNeeded = this.get('totalCustomerMonthsNeededToHitGoal') / this.get('timespan');
+    return (Math.pow(totalCustomersNeeded / this.get('growthSeed'), 1 / this.get('timespan')) - 1) * 12;
+  }.property('totalCustomerMonthsNeededToHitGoal', 'growthSeed', 'timespan'),
+
+
+  // Holding everything else constant, what's the change in starting customer base
   growthSeedToHitGoal: function() {
+    var totalNewCustomersNeeded = Math.abs(this.get('deltaWithVariableAssumptions') / (this.get('unitPrice') - this.get('processingFixedFee')));
+    var totalCustomersNeeded = totalNewCustomersNeeded + this.get('totalCustomers');
+    return totalCustomersNeeded;
+  }.property('deltaWithVariableAssumptions', 'unitPrice', 'totalCustomers', 'growthSeed', 'timespan', 'processingFixedFee'),
+  growthSeedDeltaToHitGoal: function() {
+    return Math.abs(this.get('growthSeed') - this.get('growthSeedToHitGoal'));
+  }.property('growthSeed', 'growthSeedToHitGoal'),
+
+  // Holding everything else constant, what's the change in absolute growth rate needed to hit the goal
+  growthAmountToHitGoal: function() {
     var totalNewCustomersNeeded = this.get('deltaWithVariableAssumptions') / (this.get('unitPrice') - this.get('processingFixedFee'));
     var totalCustomersNeeded = totalNewCustomersNeeded + this.get('totalCustomers');
-     return totalCustomersNeeded / Math.pow(1 + this.get('growthRate'), this.get('timespan'))
+    return totalCustomersNeeded / this.get('timespan');
   }.property('deltaWithVariableAssumptions', 'unitPrice', 'totalCustomers', 'growthSeed', 'timespan', 'processingFixedFee'),
-  growthAmountToHitGoal
-  churnRateToHitGoalIsPositive
-  churnRateToHitGoal
-  
 
   actions: {
     toggleAssumptions: function() {
