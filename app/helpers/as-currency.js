@@ -5,10 +5,10 @@ export default Ember.Handlebars.makeBoundHelper(function(value, options) {
   var format = '$,';
   if (options.hash.round) {
     if (Ember.typeOf(options.hash.round) === 'boolean') {
-      format += '.0f'
+      format += '.0f';
     } else {
       format += '.' + options.hash.round + 'r';
     }
   }
-  return d3.format(format)(value)
+  return d3.format(format)(value);
 });

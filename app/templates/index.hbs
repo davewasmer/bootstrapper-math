@@ -1,160 +1,297 @@
-{{line-chart series=series targetAmount=annualProfitGoal}}
-
-<section class="goal">
-  <h2>Your Goal</h2>
+<h1 class="headline">
   I want to replace my 
   {{#slider-input value=salary scale='1000' min='0' drag='20'}}
     {{as-currency salary round=true}}
   {{/slider-input}}
-  salary (
-  {{#slider-input value=monthlyRevenue scale='100' min='0' drag='20'}}
-    {{as-currency monthlyRevenue round=true}}
-  {{/slider-input}}
-  per month) in the next
+  salary in the next
   {{#slider-input value=timespan scale='1' min='1' drag='30'}}
     {{timespan}}
   {{/slider-input}}
   months.
-</section>
+</h1>
 
-<h2>Target</h2>
-<p>
-  To do this, you will need to bring in approximately 
-  {{as-currency annualProfitGoal round='2'}} in profit annually, 
-  or {{as-currency monthlyProfitGoal round='2'}} per month.
-</p>
-{{#unless showingAssumptions}}
-  <div class="show-assumptions" {{action 'toggleAssumptions'}}>Show assumptions &hellip;</div>
-{{/unless}}
+<div class="show-me-how-button" {{action 'showMeHow' target=view}}>Show me how</div>
 
-{{#if showingAssumptions}}
-  <section class="assumptions">
-    <div class="hide-assumptions" {{action 'toggleAssumptions'}}>hide assumptions &hellip;</div>
-    <h2>Assumptions</h2>
+<div class="container">
 
-    <div class="field">
-      Each month,
-      {{#slider-input value=churnRate scale='.01' min='0' max='1'}}
-        {{as-percent churnRate}}
-      {{/slider-input}}
-      of your customers will cancel (churn).
-    </div>
-    <div class="field">
-      Your credit card processor charges
-      {{#slider-input value=processingPercent scale='.01' min='0' max='1'}}
-        {{as-percent processingPercent round=false}}
-      {{/slider-input}}
-      +
-      {{#slider-input value=processingFixedFee scale='.01' min='0'}}
-        {{as-currency processingFixedFee}}
-      {{/slider-input}}
-      per transaction
-    </div>
-    <div class="field">
-      You'll pay
-      {{#slider-input value=incomeTaxPercent scale='.01' min='0' max='1'}}
-        {{as-percent incomeTaxPercent}}
-      {{/slider-input}}
-      in standard personal income tax.
-    </div>
-    <div class="field">
-      You'll pay an additional
-      {{#slider-input value=businessTaxPercent scale='.01' min='0' max='1'}}
-        {{as-percent businessTaxPercent}}
-      {{/slider-input}}
-      in business / self employment taxes on your bootstrapped income (i.e. Schedule C).
-    </div>
-  </section>
-{{/if}}
-
-<h2>Result</h2>
-
-<p>
-
-Based on these numbers, you'll bring in approximately {{as-currency totalProfit
-round='2'}} over the next {{timespan}} months,
-
-{{#if isShortOfGoal}}
-    leaving you roughly {{as-currency displayDelta round='2'}} short of your goal.
-{{else}}
-    putting you roughly {{as-currency displayDelta round='2'}} over than your goal.
-{{/if}}
-</p>
-
-{{#if isShortOfGoal}}
-  <p>
-    You've got a few options:
-  </p>
-  <ul>
-    <li>You could increase your price by {{as-currency priceDeltaToHitGoal round=true}} to {{as-currency priceToHitGoal round=true}}</li>
-    {{#if growthIsPercent}}
-      <li>You could increase your growth rate by {{as-percent growthRateDeltaToHitGoal round=true}} to {{as-percent growthRateToHitGoal round=true}}</li>
-      <li>You could increase the number of customers you start out with by {{as-integer growthSeedDeltaToHitGoal}} to {{as-integer growthSeedToHitGoal}}</li>
-    {{else}}
-      <li>You could increase the number of customers you sign up each month to {{as-integer growthAmountToHitGoal}}</li>
-    {{/if}}
-    {{#if churnRateToHitGoalIsPositive}}
-      <li>You could reduce your churn rate to {{as-percent churnRateToHitGoal}}</li>
-    {{/if}}
-  </ul>
-{{else}}
-  <p>
-    Awesome! Looks like you are on track to hit your goals!
-  </p>
-{{/if}}
-
-<section class="pricing">
-  <h2>Pricing</h2>
-  <div class="field">
-    <div class="label">How much will you charge per month?</div>
-    {{#slider-input value=unitPrice scale='5' min='0' drag='30'}}
-      {{as-currency unitPrice round=true}}
-    {{/slider-input}}
+  <div {{bind-attr class=":chart-wrapper isShortOfGoal:failure:success"}}>
+    {{line-chart series=series targetAmount=annualIncomeGoal}}
   </div>
-</section>
+  
+  <div class="details">
+    <div class="header-row clearfix">
+      <div class="overview">
+        <div class="cell third">
+          <div class="label">Goal Income</div>
+          <div class="value">{{as-currency annualIncomeGoal round='2'}}</div>
+        </div>
+        <div class="cell third">
+          <div class="label">Actual Income</div>
+          <div class="value">{{as-currency totalIncome round='2'}}</div>
+        </div>
+        <div {{bind-attr class=":cell :third isShortOfGoal:is-short-of-goal:is-over-goal"}}>
+          <div class="label">
+            {{#if isShortOfGoal}}
+              Short of goal by
+            {{else}}
+              Over goal by
+            {{/if}}
+          </div>
+          <div class="value">
+            {{#if isShortOfGoal}}
+              {{as-currency displayDelta round='2'}}
+            {{else}}
+              {{as-currency displayDelta round='2'}}
+            {{/if}}
+          </div>
+        </div>
+      </div>
 
-<section class="growth">
-  <h2>Growth</h2>
-  <div class="field">
-    <div class="label">How much will your customer base grow each month?</div>
-    {{#if growthIsPercent}}
-      {{#slider-input value=growthRate scale='.01' max='1' min='0' drag='10'}}
-        {{as-percent growthRate}}
-      {{/slider-input}}
-      each month
-    {{else}}
-      {{#slider-input value=growthAmount scale='1' min='0' drag='10'}}
-        {{growthAmount}}
-      {{/slider-input}}
-      customers each month
-    {{/if}}
-    ( <span {{bind-attr class=":growth-type-toggle growthIsPercent:active"}} {{action 'setGrowthAsPercent'}}>percentage</span>
-    | <span {{bind-attr class=":growth-type-toggle growthIsPercent::active"}} {{action 'setGrowthAsAbsolute'}}>absolute</span> )
+      {{#if isShortOfGoal}}
+        <div class="cell full conclusion">
+          Looks like you're short of your goal! Here are some ways to make up the difference:
+        </div>
+        <div class="recommendations clearfix">
+          <div {{bind-attr class=":cell churnRateToHitGoalIsPositive:quarter:third"}}>
+              <div class="label">Increase unit price to</div>
+              <div class="value">{{as-currency priceToHitGoal round=true}}</div>
+            </div>
+            {{#if growthIsPercent}}
+              <div {{bind-attr class=":cell churnRateToHitGoalIsPositive:quarter:third"}}>
+                <div class="label">Increase growth rate to</div>
+                <div class="value">{{as-percent growthRateToHitGoal round=true}}</div>
+              </div>
+            {{else}}
+              <div {{bind-attr class=":cell churnRateToHitGoalIsPositive:quarter:third"}}>
+                <div class="label">Increase growth amount to</div>
+                <div class="value">{{as-integer growthAmountToHitGoal}}</div>
+              </div>
+            {{/if}}
+            <div {{bind-attr class=":cell churnRateToHitGoalIsPositive:quarter:third"}}>
+              <div class="label">Increase growth seed to</div>
+              <div class="value">{{as-integer growthSeedToHitGoal}}</div>
+            </div>
+            {{#if churnRateToHitGoalIsPositive}}
+              <div class="cell quarter">
+                <div class="label">Reduce churn rate to</div>
+                <div class="value">{{as-percent churnRateToHitGoal}}</div>
+              </div>
+            {{/if}}
+        </div>
+      {{else}}
+        <div class="conclusion cell full">
+          Congrats! Looks like you are on track to hit your goals!
+        </div>
+      {{/if}}
+
+    </div>
+
+    <p>
+      Tweak the values below to see how it impacts your goals.
+    </p>
+    
+    <section class="clearfix">
+      <h2>Pricing</h2>
+      <div class="cell full">
+        <div class="prompt">
+          How much will you charge per subscription?
+        </div>
+        <div class="answer">
+          <div class="label">Unit Price</div>
+          <div class="value">
+            {{#slider-input value=unitPrice scale='5' min='0' drag='30'}}
+              {{as-currency unitPrice round=true}}
+            {{/slider-input}}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class='clearfix'>
+      <h2>Growth</h2>
+      
+      <div class="cell full">
+        <div class="prompt">How much will you grow each month?</div>
+        <div class="answer">
+          <div class="label">Growth Rate</div>
+          <div class="value">
+            {{#if growthIsPercent}}
+              {{#slider-input value=growthRate scale='.01' max='1' min='0' drag='10'}}
+                {{as-percent growthRate}}
+              {{/slider-input}}
+              <small class='unit-toggle' {{action 'toggleGrowthAsPercent' on='click'}}>
+                each month
+                <span class='tooltip-target' data-tooltip-content="Click to change to linear growth (i.e. x customers per month)">?</span>
+              </small>
+            {{else}}
+              {{#slider-input value=growthAmount scale='1' min='0' drag='10'}}
+                {{growthAmount}}
+              {{/slider-input}}
+              <small class='unit-toggle' {{action 'toggleGrowthAsPercent' on='click'}}>
+                customers each month 
+                <span class='tooltip-target' data-tooltip-content="Click to change to compounding growth (i.e. x% growth per month)">?</span>
+              </small>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+
+      {{#if growthIsPercent}}
+        <div class="cell half">
+          <div class="prompt">
+            What's the minimum growth per month?
+            <span class="tooltip-target" data-tooltip-content="Percent growth doesn't work well in the early months (10% of 5 customers?).">?</span>
+          </div>
+          <div class="label">Minimum Growth</div>
+          <div class="value">
+            {{#slider-input value=growthMin scale='1' min='0'}}
+              {{growthMin}}
+            {{/slider-input}}
+          </div>
+          <small>customers per month</small>
+        </div>
+      {{/if}}
+
+      <div {{bind-attr class=":cell growthIsPercent:half:full"}}>
+        <div class="prompt">How many customers will you launch with?</div>
+        <div class="label">Growth Seed</div>
+        <div class="value">
+          {{#slider-input value=growthSeed scale='1' min='0'}}
+            {{growthSeed}}
+          {{/slider-input}}
+        </div>
+        <small>initial customers</small>
+      </div>
+
+      <div {{bind-attr class=":cell isGrowthCapped:half:full"}}>
+        <label class="prompt">
+          {{input type='checkbox' checked=isGrowthCapped}} Limit the number of customers you can / want to support?
+        </label>
+      </div>
+
+      {{#if isGrowthCapped}}
+        <div class="cell half">
+          <div class="prompt">What is that limit?</div>
+          <div class="label">Growth Cap</div>
+          <div class="value">
+            {{#slider-input value=growthCap scale='1' min='0'}}
+              {{growthCap}}
+            {{/slider-input}}
+          </div>
+          <small>customers</small>
+        </div>
+      {{/if}}
+    </section>
+    
+    <section class="clearfix">
+      <h2>Churn</h2>
+
+      <div class="cell full">
+        <div class="prompt">How many customers will you lose each month?</div>
+        <div class="label">Churn Rate</div>
+        <div class="value">
+          {{#slider-input value=churnRate scale='.01' min='0' max='1'}}
+            {{as-percent churnRate}}
+          {{/slider-input}}
+        </div>
+        <small>of customers lost</small>
+      </div>
+    </section>
+    
+    <section class="clearfix">
+      <h2>Expenses</h2>
+
+      <div class="payment-processing-fees">
+        <div class="cell half">
+          <div class="prompt">What percent does your payment processor charge?</div>
+          <div class="label">CC Variable Fee</div>
+          {{#slider-input value=processingPercent scale='.01' min='0' max='1'}}
+            {{as-percent processingPercent round=false}}
+          {{/slider-input}}
+        </div>
+
+        <div class="cell half">
+          <div class="prompt">What amount does your payment processor charge per transaction?</div>
+          <div class="label">CC Fixed Fee</div>
+          {{#slider-input value=processingFixedFee scale='.01' min='0'}}
+            {{as-currency processingFixedFee}}
+          {{/slider-input}}
+        </div>
+      </div>
+
+      <div class="cell full">
+        <div class="prompt">
+          What percent extra will you pay in taxes?
+          <span class="tooltip-target" data-tooltip-content="For example, US sole proprietorships must pay an additional 15% self-employment tax (Schedule C).">?</span>
+        </div>
+        <div class="label">Addtional Tax Rate</div>
+        {{#slider-input value=businessTaxPercent scale='.01' min='0' max='1'}}
+          {{as-percent businessTaxPercent}}
+        {{/slider-input}}
+      </div>
+    </section>
   </div>
-  {{#if growthIsPercent}}
-  <div class="field">
-    <div class="label">The minimum number of customers added per month (regardless of percent growth)?</div>
-    {{#slider-input value=growthMin scale='1' min='0'}}
-      {{growthMin}}
-    {{/slider-input}}
-  </div>
+</div>
+    
+<div class="container calculations">
+  {{#if showCalculations}}
+    <section class="details clearfix">
+      <h2>Calculations</h2>
+      <table>
+        <thead>
+          <th>Month</th>
+          <th>New Customers</th>
+          <th>Churned Customers</th>
+          <th>Total Customers</th>
+          <th>Revenue</th>
+          <th>Expenses</th>
+          <th>Income</th>
+        </thead>
+        <tbody>
+          {{#each month in projection}}
+            <td>{{month.monthNumber}}</td>
+            <td>{{month.newCustomers}}</td>
+            <td>{{month.churnedCustomers}}</td>
+            <td>{{month.customers}}</td>
+            <td>{{as-currency month.revenue round=true}}</td>
+            <td>{{as-currency month.expenses round=true}}</td>
+            <td>{{as-currency month.monthlyIncome round=true}}</td>
+          {{/each}}
+          <tr class='total-row'>
+            <td>Total</td>
+            <td>{{totalNewCustomers}}</td>
+            <td>{{totalChurnedCustomers}}</td>
+            <td>{{totalCustomers}}</td>
+            <td>{{as-currency totalRevenue round=true}}</td>
+            <td>{{as-currency totalExpenses round=true}}</td>
+            <td>{{as-currency totalIncome round=true}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="cell half">
+        <div class="label">Final Customer Base</div>
+        <div class="value">
+          {{totalCustomers}} <small>customers</small>
+        </div>
+      </div>
+      <div class="cell half">
+        <div class="label">Total Customer-Months</div>
+        <div class="value">
+          {{totalCustomerMonths}} 
+          <small>
+            customer months
+            <span class="tooltip-target" data-tooltip-content="The cumulative number of times a customer pays you. <br> So (10 customers in month 1) + (20 in month 2) = 30 customer-months.">?</span>
+          </small>
+        </div>
+      </div>
+    </section>
+  {{else}}
+    <div class="details toggle-calculations" {{action 'toggleCalculations'}}>
+      show calculations &hellip;
+    </div>
   {{/if}}
-  <div class="field">
-    <div class="label">How many customers will you launch with?</div>
-    {{#slider-input value=growthSeed scale='1' min='0'}}
-      {{growthSeed}}
-    {{/slider-input}}
-  </div>
-  <div class="field">
-    <div class="label">Is there a limit to the number of customers you can / want to support?</div>
-    {{input type='checkbox' checked=isGrowthCapped}}
-  </div>
-  {{#if isGrowthCapped}}
-    <div class="field">
-      <div class="label">What is that limit?</div>
-      {{#slider-input value=growthCap scale='1' min='0'}}
-        {{growthCap}}
-      {{/slider-input}}
-    </div>
-  {{/if}}
-</section>
+</div>
+
+<div class="footer">
+  Made with <img src="/images/axe.png" alt=""> by <a href="http://davewasmer.com" target="_blank">@davewasmer</a>.
+</div>

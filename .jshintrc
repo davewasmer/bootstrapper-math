@@ -3,7 +3,9 @@
     "document",
     "window",
     "-Promise",
-    "c3"
+    "d3",
+    "c3",
+    "Tooltip"
   ],
   "browser": true,
   "boss": true,

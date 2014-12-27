@@ -3,28 +3,165 @@
 }
 
 html, body {
-  margin: 20px;
   font-family: 'Tisa Pro', serif;
   color: #5c5c5c;
+  background-color: #efefef;
 }
 
-.brand {
-  margin: 0;
-  font-size: 18px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #5c5c5c;
-  margin-bottom: 20px;
+
+.clearfix:before, .clearfix:after {
+  content: " ";
+  display: table;
+}
+.clearfix:after {
+  clear: both;
+}
+
+.tooltip-target {
+  cursor: help;
+  display: inline-block;
+  padding: 0.5em;
+  border-radius: 500px;
+  color: #A3A3FF;
+  width: 1.7em;
+  height: 1.7em;
+  line-height: 0.7;
+  font-size: 0.7em;
+  text-align: center;
+  margin: 0 0.2em;
+  border: 1px solid #A3A3FF;
+}
+
+.tooltip {
+  font-size: 12px;
+}
+
+.container {
+  max-width: 35rem;
+  margin: 3rem auto;
+  box-shadow: 0px 0px 8px rgba(0,0,0,0.1);
+  opacity: 0;
+  display: none;
+  position: relative;
+  top: 100px;
+}
+
+.headline {
+  font-size: 1.8rem;
+  text-align: center;
+  margin: 8rem 0 3rem;
+}
+
+.show-me-how-button {
+  background: linear-gradient(180deg, #91B0FF, #7493E4);
+  width: 10rem;
+  margin: 2rem auto;
+  padding: 0.75rem 1rem;
+  border-radius: 3px;
+  color: #fff;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.5), inset 0px 1px 0px rgba(255, 255, 255, 0.4);
+  text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  position: absolute;
+  left: 50%;
+  margin-left: -5rem;
+  margin-top: -1rem;
+}
+.show-me-how-button:hover {
+  background: linear-gradient(180deg, #88A4ED, #6880BE);
+}
+.show-me-how-button:active {
+  background: linear-gradient(180deg, #6880BE, #6880BE);
 }
 
 .line-chart {
-  float: right;
-  margin: 30px 40px;
-  width: 50%;
+  max-width: 35rem;
+  margin: 0 auto;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
 }
 
 .line-chart .chart {
-  width: 100%;
+  max-width: 35rem;
   height: 300px;
+  border-radius: 2px 2px 0 0;
+}
+
+svg {
+  max-width: 35rem;
+}
+
+.chart-wrapper.success .chart {
+  background-color: #8CDA6C;
+}
+.chart-wrapper.failure .chart {
+  background-color: #FF7C7C;
+}
+
+.chart .domain, .chart .tick line {
+  display: none;
+}
+.chart text {
+  fill: white;
+}
+.chart .goal-line text {
+  fill: #FFC1C1;
+}
+.chart .goal-line line {
+  stroke: white;
+  stroke-width: 2px;
+}
+.chart .c3-xgrid-focus line {
+  stroke: #F7B2B2;
+}
+.chart .c3-tooltip,
+.chart .c3-tooltip td,
+.chart .c3-tooltip th,
+.chart .c3-tooltip tr {
+  background-color: transparent;
+  box-shadow: none;
+  border: none;
+  font-size: 11px;
+}
+.chart .c3-tooltip th {
+  font-weight: normal;
+  text-transform: uppercase;
+}
+.chart .c3-tooltip .name, .chart .c3-tooltip .value {
+  color: white;
+  font-weight: bold;
+}
+.chart .c3-tooltip td > span {
+  display: none;
+}
+.chart .c3-target-Profit path {
+  fill: white;
+  opacity: 1;
+}
+.chart .c3-target-Cumulative-profit {
+
+}
+
+.details {
+  background-color: #fff;
+  text-align: center;
+}
+
+.details h2 {
+  text-transform: uppercase;
+  font-size: 12px;
+  text-align: left;
+  padding: 0.4rem 1rem 0.2rem;
+  margin: 0rem;
+  background-color: #666;
+  color: white;
+}
+
+.header-row + h2 {
+  margin-top: 2rem;
 }
 
 .slider-input, .slider-input-dragging {
@@ -38,4 +175,178 @@ html, body {
 .slider-input {
   display: inline-block;
   border-bottom: 2px dotted #5c5c5c;
+}
+
+.unit-toggle {
+  cursor: pointer;
+}
+
+.header-row {
+  -webkit-transition: background-color ease-in-out 0.2s, color ease-in-out 0.2s;
+     -moz-transition: background-color ease-in-out 0.2s, color ease-in-out 0.2s;
+       -o-transition: background-color ease-in-out 0.2s, color ease-in-out 0.2s;
+          transition: background-color ease-in-out 0.2s, color ease-in-out 0.2s;
+}
+
+.header-row.stick {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  margin-left: -17.5rem;color: #FFF;
+  background: #333;
+  -webkit-transition: background-color ease-in-out 0.2s, color ease-in-out 0.2s;
+     -moz-transition: background-color ease-in-out 0.2s, color ease-in-out 0.2s;
+       -o-transition: background-color ease-in-out 0.2s, color ease-in-out 0.2s;
+          transition: background-color ease-in-out 0.2s, color ease-in-out 0.2s;
+}
+
+.recommendations {
+  text-align: left;
+}
+
+.cell {
+  text-align: left;
+  float: left;
+  vertical-align: top;
+  padding: 1rem 2rem;
+  border: 1px solid #ddd;
+  border-left: none;
+  border-top: none;
+  width: 100%;
+}
+.cell.full {
+  border-right: none;
+}
+.cell.half {
+  width: 50%;
+}
+.cell.half:nth-child(even) {
+  border-right: none;
+}
+.cell.third {
+  width: 33.33333%;
+}
+.cell.third:nth-child(3n) {
+  border-right: none;
+}
+.cell.quarter {
+  width: 25%;
+}
+.cell.quarter:nth-child(4n) {
+  border-right: none;
+}
+
+.header-row.stick .cell {
+  border-color: #666;
+  border-top: none;
+}
+
+.cell.conclusion {
+  font-size: 12px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  text-align: center;
+}
+
+.recommendations .cell {
+  padding: 0.5rem 1rem;
+}
+.recommendations .cell .value {
+  line-height: 1.2;
+  font-size: 1.4rem;
+}
+
+.cell .prompt {
+  float: right;
+  margin-bottom: 1rem;
+}
+
+.cell .label {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
+  font-size: 0.6rem;
+  font-weight: bold;
+  color: #999;
+}
+
+.cell .value {
+  font-size: 1.8rem;
+}
+
+.cell .value small {
+  font-size: 0.6rem;
+  display: inline-block;
+  margin: 0 1em;
+}
+
+.cell.is-over-goal {
+  color: #8CDA6C;
+}
+.cell.is-short-of-goal {
+  color: #FF7C7C;
+}
+
+.cell.half .prompt {
+  font-size: 14px;
+}
+
+.cell label.prompt {
+  float: none;
+}
+
+.toggle-calculations {
+  color: #A3A3FF;
+  text-decoration: underline;
+  font-size: 12px;
+  margin-top: 2rem;
+  padding: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+}
+
+.calculations table {
+  width: 100%;
+  font-size: 13px;
+}
+.calculations th {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #ccc;
+  padding: 0.5em;
+  border-bottom: 1px solid #ddd;
+}
+.calculations th:first-child {
+  width: 1%;
+
+}
+.calculations td:first-child {
+  color: #aaa;
+}
+.calculations td {
+  padding: 0.5em;
+}
+.calculations .total-row td {
+  border-top: 1px solid #aaa;
+  font-weight: bold;
+  color: #333;
+}
+
+.footer {
+  font-size: 12px;
+  color: #aaa;
+  font-weight: 200;
+  text-align: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 0.5em;
+}
+.footer img {
+  vertical-align: middle;
+}
+.footer a {
+  color: #aaa;
 }

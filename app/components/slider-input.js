@@ -15,6 +15,7 @@ export default Ember.Component.extend({
 
   mouseDown: function(e) {
     if (!this.get('disabled')) {
+      this.set('isDragging', true);
       var startPosition = { left: e.pageX, top: e.pageY };
       var startValue = this.get('value');
       var max = Number(this.get('max')), min = Number(this.get('min'));
@@ -32,7 +33,24 @@ export default Ember.Component.extend({
       Ember.$(document).one('mouseup', function(e) {
         Ember.$(document).off('mousemove.slider-input');
         Ember.$('body').removeClass('slider-input-dragging');
+        self.set('isDragging', false);
+        e.stopPropagation();
+        return false;
       });
+    }
+  },
+
+  click: function(e) {
+    if (this.get('isDragging')) {
+      e.stopPropagation();
+      return false;
+    }
+  },
+
+  mouseUp: function(e) {
+    if (this.get('isDragging')) {
+      e.stopPropagation();
+      return false;
     }
   }
 

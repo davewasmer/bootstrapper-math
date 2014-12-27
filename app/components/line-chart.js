@@ -39,31 +39,66 @@ export default Ember.Component.extend({
       var axis = series.units === 'each' ? 'y2' : 'y';
       axesMap[series.label] = axis;
     });
-    return axesMap
+    return axesMap;
   }.property('series.@each.axis'),
+
+  types: function() {
+    var typesMap = {};
+    this.get('series').map(function(series) {
+      typesMap[series.label] = series.type || 'area';
+    });
+    return typesMap;
+  }.property('series.@each.type'),
+
+  colors: function() {
+    return this.get('series').map(function(series) {
+      return series.color || '#fff';
+    });
+  }.property('series.@each.color'),
   
   renderChart: function() {
     this.chart = c3.generate({
       bindto: this.$(".chart").get(0),
+      size: {
+        width: 560
+      },
       data: { 
         columns: this.get('columns'),
+        types: this.get('types'),
         axes: this.get('axes')
+      },
+      color: {
+        pattern: this.get('colors')
+      },
+      point: {
+        show: false
+      },
+      padding: {
+        top: 0,
+        left: 40,
+        right: 10,
+        bottom: 0
       },
       legend: {
         show: false
       },
+      tooltip: {
+        format: {
+          value: d3.format('$,.2s')
+        }
+      },
       axis: {
         x: {
+          show: false,
           tick: {
-            format: function(x) { return x + 1; }
+            format: function(x) { return 'Month ' + (x + 1); }
           }
         },
         y: {
           max: Math.max(this.get('targetAmount'), this.get('yMax') * 1.15),
           min: 0,
-          label: 'Revenue',
           tick: {
-            format: d3.format('$,')
+            format: d3.format('$,s')
           }
         },
         y2: {
@@ -101,11 +136,11 @@ export default Ember.Component.extend({
 
   updateTarget: function() {
     var chart = window.c = this.chart;
-    var targetAmount = this.get('targetAmount')
+    var targetAmount = this.get('targetAmount');
 
     chart.ygrids.remove({ 'class': 'goal-line' });
     chart.ygrids.add({ value: targetAmount, text: 'Goal', 'class': 'goal-line' });
-    chart.axis.max({ y: targetAmount * 1.15 })
+    chart.axis.max({ y: targetAmount * 1.15 });
     setTimeout(function(){
       chart.flush();
     }, 500);
