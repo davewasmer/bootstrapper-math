@@ -43,7 +43,7 @@ export default Ember.Controller.extend({
   // 
 
   // Pricing
-  unitPrice: 290,
+  unitPrice: 50,
 
   // Growth
   growthRate: 0.10,
