@@ -17,6 +17,7 @@
     "c3": "*",
     "normalize.css": "~3.0.2",
     "velocity": "~1.1.0",
-    "tether-tooltip": "~0.2.6"
+    "tether-tooltip": "~0.2.6",
+    "newton-raphson": "~0.0.3"
   }
 }
