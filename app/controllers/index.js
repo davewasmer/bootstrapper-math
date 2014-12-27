@@ -131,6 +131,7 @@ export default Ember.Controller.extend({
   }.property(
     'months',
     'growthSeed',
+    'growthAmount',
     'growthRate',
     'growthMin',
     'churnRate',
@@ -304,13 +305,6 @@ export default Ember.Controller.extend({
   growthSeedDeltaToHitGoal: function() {
     return Math.abs(this.get('growthSeed') - this.get('growthSeedToHitGoal'));
   }.property('growthSeed', 'growthSeedToHitGoal'),
-
-  // Holding everything else constant, what's the change in absolute growth rate needed to hit the goal
-  growthAmountToHitGoal: function() {
-    var totalNewCustomersNeeded = this.get('deltaWithVariableExpenses') / (this.get('unitPrice') - this.get('processingFixedFee'));
-    var totalCustomersNeeded = totalNewCustomersNeeded + this.get('totalCustomers');
-    return totalCustomersNeeded / this.get('timespan');
-  }.property('deltaWithVariableExpenses', 'unitPrice', 'totalCustomers', 'growthSeed', 'timespan', 'processingFixedFee'),
 
   actions: {
     toggleShowMeHow: function() {

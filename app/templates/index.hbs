@@ -56,17 +56,10 @@
               <div class="label">Increase unit price to</div>
               <div class="value">{{as-currency priceToHitGoal round=true}}</div>
             </div>
-            {{#if growthIsPercent}}
-              <div {{bind-attr class=":cell churnRateToHitGoalIsPositive:quarter:third"}}>
-                <div class="label">Increase growth rate to</div>
-                <div class="value">{{as-percent growthRateToHitGoal round=true}}</div>
-              </div>
-            {{else}}
-              <div {{bind-attr class=":cell churnRateToHitGoalIsPositive:quarter:third"}}>
-                <div class="label">Increase growth amount to</div>
-                <div class="value">{{as-integer growthAmountToHitGoal}}</div>
-              </div>
-            {{/if}}
+            <div {{bind-attr class=":cell churnRateToHitGoalIsPositive:quarter:third"}}>
+              <div class="label">Increase growth rate to</div>
+              <div class="value">~{{as-percent growthRateToHitGoal round=true}}</div>
+            </div>
             <div {{bind-attr class=":cell churnRateToHitGoalIsPositive:quarter:third"}}>
               <div class="label">Increase growth seed to</div>
               <div class="value">{{as-integer growthSeedToHitGoal}}</div>
