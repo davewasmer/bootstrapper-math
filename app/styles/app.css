@@ -3,7 +3,7 @@
 }
 
 html, body {
-  font-family: 'Tisa Pro', serif;
+  font-family: 'ff-tisa-web-pro', serif;
   color: #5c5c5c;
   background-color: #efefef;
 }
@@ -126,6 +126,9 @@ svg {
   border: none;
   font-size: 11px;
 }
+.chart .c3-tooltip {
+  background-color: rgba(0,0,0,0.3);
+}
 .chart .c3-tooltip th {
   font-weight: normal;
   text-transform: uppercase;
@@ -141,8 +144,8 @@ svg {
   fill: white;
   opacity: 1;
 }
-.chart .c3-target-Cumulative-profit {
-
+.chart .c3-line-Total-income {
+  stroke-width: 5px;
 }
 
 .details {
