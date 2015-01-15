@@ -1,7 +1,27 @@
+/*global newtonRaphson:false */
+
 import Ember from 'ember';
 import 'bower_components/newton-raphson/index';
 
 export default Ember.Controller.extend({
+
+  queryParams: [
+    'salary',
+    'timespan',
+    'processingPercent',
+    'processingFixedFee',
+    'churnRate',
+    'churnMin',
+    'businessTaxPercent',
+    'unitPrice',
+    'growthRate',
+    'growthAmount',
+    'growthIsPercent',
+    'growthMin',
+    'growthCap',
+    'growthSeed',
+    'isGrowthCapped'
+  ],
 
   // 
   // Page controls
@@ -106,7 +126,7 @@ export default Ember.Controller.extend({
       var creditCardPercent = revenue * this.get('processingPercent');
       var creditCardFixed   = customers * this.get('processingFixedFee');
       var taxes             = revenue * this.get('businessTaxPercent');
-      var expenses          = creditCardPercent + creditCardFixed + taxes
+      var expenses          = creditCardPercent + creditCardFixed + taxes;
 
       // Income
       var monthlyIncome     = revenue - expenses;
