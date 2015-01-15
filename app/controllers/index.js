@@ -1,7 +1,16 @@
-/*global newtonRaphson:false */
+/*global newtonRaphson:false,mixpanel:false */
 
 import Ember from 'ember';
 import 'bower_components/newton-raphson/index';
+
+function track(property) {
+  function fireTrackingEvent() {
+    mixpanel.track(property, { value: this.get(property) });
+  }
+  return function() {
+    Ember.run.debounce(this, fireTrackingEvent, 600);
+  }.observes(property);
+}
 
 export default Ember.Controller.extend({
 
@@ -28,14 +37,18 @@ export default Ember.Controller.extend({
   // 
 
   showMeHow: false,
+  trackShowMeHow: track('showMeHow'),
   showCalculations: false,
+  trackShowCalculations: track('showCalculations'),
 
   // 
   // Goals
   // 
 
   salary: 60000,
+  trackSalary: track('salary'),
   timespan: 12,
+  trackTimespan: track('timespan'),
   monthlyRevenue: function(key, value) {
     if (arguments.length > 1) {
       this.set('salary', value * 12);
@@ -49,14 +62,19 @@ export default Ember.Controller.extend({
 
   // Credit card processing
   processingPercent: 0.029,
+  trackProcessingPercent: track('processingPercent'),
   processingFixedFee: 0.30,
+  trackProcessingFixedFee: track('processingFixedFee'),
 
   // Churn
   churnRate: 0.10,
+  trackChurnRate: track('churnRate'),
   churnMin: 0,
+  trackChurnMin: track('churnMin'),
 
   // Taxes
   businessTaxPercent: 0.15,
+  trackBusinessTaxPercent: track('businessTaxPercent'),
 
   // 
   // Income
@@ -64,11 +82,15 @@ export default Ember.Controller.extend({
 
   // Pricing
   unitPrice: 50,
+  trackUnitPrice: track('unitPrice'),
 
   // Growth
   growthRate: 0.10,
+  trackGrowthRate: track('growthRate'),
   growthAmount: 1,
+  trackGrowthAmount: track('growthAmount'),
   growthIsPercent: true,
+  trackGrowthIsPercent: track('growthIsPercent'),
   growthIsAbsolute: function(key, value) {
     if (arguments.length > 1) {
       this.set('growthIsPercent', !value);
@@ -76,9 +98,13 @@ export default Ember.Controller.extend({
     return !this.get('growthIsPercent');
   }.property('growthIsPercent'),
   growthMin: 3,
+  trackGrowthMin: track('growthMin'),
   growthCap: 200,
+  trackGrowthCap: track('growthCap'),
   growthSeed: 10,
+  trackGrowthSeed: track('growthSeed'),
   isGrowthCapped: false,
+  trackIsGrowthCapped: track('isGrowthCapped'),
 
 
 
