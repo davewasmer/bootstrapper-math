@@ -5,23 +5,23 @@ import 'bower_components/newton-raphson/index';
 
 export default Ember.Controller.extend({
 
-  queryParams: [
-    'salary',
-    'timespan',
-    'processingPercent',
-    'processingFixedFee',
-    'churnRate',
-    'churnMin',
-    'businessTaxPercent',
-    'unitPrice',
-    'growthRate',
-    'growthAmount',
-    'growthIsPercent',
-    'growthMin',
-    'growthCap',
-    'growthSeed',
-    'isGrowthCapped'
-  ],
+  queryParams: {
+    'salary'               : 'salary',
+    'timespan'             : 'timespan',
+    'processingPercent'    : 'processing-percent',
+    'processingFixedFee'   : 'processing-fixed-fee',
+    'churnRate'            : 'churn-rate',
+    'churnMin'             : 'churn-min',
+    'businessTaxPercent'   : 'business-tax-percent',
+    'unitPrice'            : 'unit-price',
+    'growthRate'           : 'growth-rate',
+    'growthAmount'         : 'growth-amount',
+    'growthIsPercent'      : 'growth-is-percent',
+    'growthMin'            : 'growth-min',
+    'growthCap'            : 'growth-cap',
+    'growthSeed'           : 'growth-seed',
+    'isGrowthCapped'       : 'is-growth-capped'
+  },
 
   // 
   // Page controls
